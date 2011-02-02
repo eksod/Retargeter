@@ -17,19 +17,20 @@ freely, subject to the following restrictions:
    misrepresented as being the original software.
 
 Author:
-Eduardo Simioni <eduardo.simioni@gmail.com>
-http://www.eduardosimioni.com
+eduardo.simioni@gmail.com
+http://www.eksod.com
 """
 
 import os
 import re
 from pyfbsdk import *
-# from "C:\Program Files\Autodesk\Autodesk MotionBuilder 2011 32-bit\bin\config\Scripts\" import 3dsMaxBiped.py
+
+# animations, if not characterized, MUST HAVE TPOSE on first frame
 
 
 
 """
-         from 3dsMaxBipedTemplate
+         from 3dsMaxBipedTemplate, edited
 """
 
 # Copyright 2009 Autodesk, Inc.  All rights reserved.
@@ -45,18 +46,11 @@ from pyfbsdk import *
 #
 
 
-# These three variables controls how characterization is done
-
-# This is the Root Name. For a Biped this will be the Biped Name. For Custom Skeleton user must set
-# it according to their naming convention
-bipedrootname = "<CharacterName>"
-
 # For biped, all bones have the following naming scheme <BipedName> <BipedBone>. Set this variable to 
 # False if you have Custom Skeleton.
 bipedPrefixNamingScheme = True
 
 # This is the biped map mapping all bipeds Name to Mobu Names.
-# If you have a custom skeleton, you need to recreate this map according to your naming convention.
 bipedMap = {'Reference' : 'Fbx_Root',
             'Hips':'',
              'LeftUpLeg' : 'L Thigh',
@@ -162,6 +156,113 @@ bipedMap = {'Reference' : 'Fbx_Root',
              'LeftForeArmRoll' : 'L ForeTwist',
              'RightArmRoll' : 'RUpArmTwist',
              'RightForeArmRoll' : 'R ForeTwist' }
+             
+# This is the Motionbuilder mapping to use the same function. Edit this list or create your own.
+mobuMap = {'Reference' : 'Fbx_Root',
+            'Hips':'Hips',
+             'LeftUpLeg' : 'LeftUpLeg',
+             'LeftLeg' : 'LeftLeg',
+             'LeftFoot' : 'LeftFoot',
+             'RightUpLeg' : 'RightUpLeg',
+             'RightLeg' : 'RightLeg',
+             'RightFoot' : 'RightFoot',
+             'Spine' : 'Spine',
+             'LeftArm' : 'LeftArm',
+             'LeftForeArm' : 'LeftForeArm',
+             'LeftHand' : 'LeftHand',
+             'RightArm' : 'RightArm',
+             'RightForeArm' : 'RightForeArm',
+             'RightHand' : 'RightHand',
+             'Head' : 'Head',
+             'LeftShoulder' : 'LeftShoulder',
+             'RightShoulder' : 'RightShoulder',
+             'Neck' : 'Neck',
+             'Spine1' : 'Spine1',
+             'Spine2' : 'Spine2',
+             'Spine3' : 'Spine3',
+             'Spine4' : 'Spine4',
+             'Spine5' : 'Spine5',
+             'Spine6' : 'Spine6',
+             'Spine7' : 'Spine7',
+             'Spine8' : 'Spine8',
+             'Spine9' : 'Spine9',
+             'Neck1' : 'Neck1',
+             'Neck2' : 'Neck2',
+             'Neck3' : 'Neck3',
+             'Neck4' : 'Neck4',
+             'Neck5' : 'Neck5',
+             'Neck6' : 'Neck6',
+             'Neck7' : 'Neck7',
+             'Neck8' : 'Neck8',
+             'Neck9' : 'Neck9',
+             'LeftHandThumb1' : 'LeftHandThumb1',
+             'LeftHandThumb2' : 'LeftHandThumb2',
+             'LeftHandThumb3' : 'LeftHandThumb3',
+             'LeftHandIndex1' : 'LeftHandIndex1',
+             'LeftHandIndex2' : 'LeftHandIndex2',
+             'LeftHandIndex3' : 'LeftHandIndex3',
+             'LeftHandMiddle1' : 'LeftHandMiddle1',
+             'LeftHandMiddle2' : 'LeftHandMiddle2',
+             'LeftHandMiddle3' : 'LeftHandMiddle3',
+             'LeftHandRing1' : 'LeftHandRing1',
+             'LeftHandRing2' : 'LeftHandRing2',
+             'LeftHandRing3' : 'LeftHandRing3',
+             'LeftHandPinky1' : 'LeftHandPinky1',
+             'LeftHandPinky2' : 'LeftHandPinky2',
+             'LeftHandPinky3' : 'LeftHandPinky3',
+             'RightHandThumb1' : 'RightHandThumb1',
+             'RightHandThumb2' : 'RightHandThumb2',
+             'RightHandThumb3' : 'RightHandThumb3',
+             'RightHandIndex1' : 'RightHandIndex1',
+             'RightHandIndex2' : 'RightHandIndex2',
+             'RightHandIndex3' : 'RightHandIndex3',
+             'RightHandMiddle1' : 'RightHandMiddle1',
+             'RightHandMiddle2' : 'RightHandMiddle2',
+             'RightHandMiddle3' : 'RightHandMiddle3',
+             'RightHandRing1' : 'RightHandRing1',
+             'RightHandRing2' : 'RightHandRing2',
+             'RightHandRing3' : 'RightHandRing3',
+             'RightHandPinky1' : 'RightHandPinky1',
+             'RightHandPinky2' : 'RightHandPinky2',
+             'RightHandPinky3' : 'RightHandPinky3',
+             'LeftFootThumb1' : 'LeftFootThumb1',
+             'LeftFootThumb2' : 'LeftFootThumb2',
+             'LeftFootThumb3' : 'LeftFootThumb3',
+             'LeftFootIndex1' : 'LeftFootIndex1',
+             'LeftFootIndex2' : 'LeftFootIndex2',
+             'LeftFootIndex3' : 'LeftFootIndex3',
+             'LeftFootMiddle1' : 'LeftFootMiddle1',
+             'LeftFootMiddle2' : 'LeftFootMiddle2',
+             'LeftFootMiddle3' : 'LeftFootMiddle3',
+             'LeftFootRing1' : 'LeftFootRing1',
+             'LeftFootRing2' : 'LeftFootRing2',
+             'LeftFootRing3' : 'LeftFootRing3',
+             'LeftFootPinky1' : 'LeftFootPinky1',
+             'LeftFootPinky2' : 'LeftFootPinky2',
+             'LeftFootPinky3' : 'LeftFootPinky3',
+             'RightFootThumb1' : 'RightFootThumb1',
+             'RightFootThumb2' : 'RightFootThumb2',
+             'RightFootThumb3' : 'RightFootThumb3',
+             'RightFootIndex1' : 'RightFootIndex1',
+             'RightFootIndex2' : 'RightFootIndex2',
+             'RightFootIndex3' : 'RightFootIndex3',
+             'RightFootMiddle1' : 'RightFootMiddle1',
+             'RightFootMiddle2' : 'RightFootMiddle2',
+             'RightFootMiddle3' : 'RightFootMiddle3',
+             'RightFootRing1' : 'RightFootRing1',
+             'RightFootRing2' : 'RightFootRing2',
+             'RightFootRing3' : 'RightFootRing3',
+             'RightFootPinky1' : 'RightFootPinky1',
+             'RightFootPinky2' : 'RightFootPinky2',
+             'RightFootPinky3' : 'RightFootPinky3',
+             'LeftUpLegRoll' : 'LeftUpLegRoll',
+             'LeftLegRoll' : 'LeftLegRoll',
+             'RightUpLegRoll' : 'RightUpLegRoll',
+             'RightLegRoll' : 'RightLegRoll',
+             'LeftArmRoll' : 'LeftArmRoll',
+             'LeftForeArmRoll' : 'LeftForeArmRoll',
+             'RightArmRoll' : 'RightArmRoll',
+             'RightForeArmRoll' : 'RightForeArmRoll' }
 
 def addJointToCharacter ( characterObject, slot, jointName ):    
     myJoint = FBFindModelByName(jointName)
@@ -169,26 +270,11 @@ def addJointToCharacter ( characterObject, slot, jointName ):
         proplist = characterObject.PropertyList.Find(slot + "Link")    
         proplist.append (myJoint)
         
-def CharacterizeBiped(rootname, useBipedPrefixNamingScheme, boneMap, models):
-    # Create an empty FBModelList object.
-    # models = FBModelList()
-    
-    # Obtain Bip01
-    #FBGetSelectedModels(models)
-    
+def CharacterizeBiped(rootname, useBipedPrefixNamingScheme, nameprefix, boneMap, models):
+  
     system = FBSystem()
     app = FBApplication()    
-    
-    # check if there is a selection
-#    if len( models ) == 0:
-#        FBMessageBox( "Message", "Please select a Biped joint.", "OK", None, None )
-#    elif len( models ) > 1:
-        # Only one biped joint must be selected else we can have problems if joints belongs to different bipeds.
-#        FBMessageBox( "Message", "Only one Biped joint must be selected.", "OK", None, None )    
-#    else:
-        # Extract the name of the model including its namespace
-        
-        
+      
     longname = models.LongName
     namespaceindex = longname.rfind(":")
     if namespaceindex != -1:
@@ -197,17 +283,20 @@ def CharacterizeBiped(rootname, useBipedPrefixNamingScheme, boneMap, models):
     else:
         namespace = ""
         name = longname
-        # If in Biped mode, extract the character prefix name
-    bipednameprefix = ""            
+
+    myBiped = FBCharacter("mycharacter")
+    app.CurrentCharacter = myBiped
+    
+    # If in Biped mode, extract the character prefix name
     if useBipedPrefixNamingScheme:
         splitname = name.split()
-        bipednameprefix = splitname[0] + " "
+        nameprefix = splitname[0] + " "
         # Override the rootname so it is the character orefix name            
         rootname = splitname[0]
-    
-    myBiped = FBCharacter("mycharacter")
-    myBiped.LongName = namespace + rootname
-    app.CurrentCharacter = myBiped
+        myBiped.LongName = namespace + rootname
+    else:
+        myBiped.LongName = namespace + nameprefix + rootname
+   
                 
     # Create a FBProgress object and set default values for the caption and text.    
     fbp = FBProgress()
@@ -221,7 +310,7 @@ def CharacterizeBiped(rootname, useBipedPrefixNamingScheme, boneMap, models):
         if not pjointName:
             addJointToCharacter (myBiped, pslot, namespace + rootname)
         else:
-            addJointToCharacter (myBiped, pslot, namespace + bipednameprefix + pjointName)
+            addJointToCharacter (myBiped, pslot, namespace + nameprefix + pjointName)
         progress += 1
         val = progress / len(boneMap)  * 100
         fbp.Percent = int(val)
@@ -232,54 +321,40 @@ def CharacterizeBiped(rootname, useBipedPrefixNamingScheme, boneMap, models):
     # We must call FBDelete when the FBProgress object is no longer needed.
     fbp.FBDelete()
     return myBiped
-# Call the Characterize Character Function with all bipeds defined variables.
-# Characterize(bipedrootname, bipedPrefixNamingScheme, bipedMap)
-
-
-
 """
-         end 3dsMaxBipedTemplate
+         end edited 3dsMaxBipedTemplate
 """
 
 
 
-
-
-
-
-
-def plotAnim(riderChar, riderBip):
-
-    if riderChar.GetCharacterize:
-        switchOn = riderChar.SetCharacterizeOn(True)
+def plotAnim(char, animChar):
+    """
+    Receives two characters, sets the input of the first character to the second
+    and plot. Return ploted character.
+    """
+    print animChar.LongName
+    if char.GetCharacterize:
+        switchOn = char.SetCharacterizeOn(True)
 
     plotoBla = FBPlotOptions()
     plotoBla.ConstantKeyReducerKeepOneKey = True
     plotoBla.PlotAllTakes = True
     plotoBla.PlotOnFrame = True
     plotoBla.PlotPeriod = FBTime( 0, 0, 0, 1 )
-#    plotoBla.PlotTranslationOnRootOnly = True
+    #plotoBla.PlotTranslationOnRootOnly = True
     plotoBla.PreciseTimeDiscontinuities = True
-#    plotoBla.RotationFilterToApply = FBRotationFilter.kFBRotationFilterGimbleKiller
+    #plotoBla.RotationFilterToApply = FBRotationFilter.kFBRotationFilterGimbleKiller
     plotoBla.UseConstantKeyReducer = False
     plotoBla.ConstantKeyReducerKeepOneKey  = True
 
-
-    print "Character to plot: ", riderChar.Name
-    riderChar.InputCharacter = riderBip
-    riderChar.InputType = FBCharacterInputType.kFBCharacterInputCharacter
-#    print riderChar.InputType.Name
-#    riderChar.InputCharacter(riderBip)
-    print "Input character on riderChar: " ,riderChar.InputCharacter.Name
-    print "Active inpute on riderChar: ", riderChar.ActiveInput 
-    riderChar.ActiveInput = True
-    print "Active inpute on riderChar: ", riderChar.ActiveInput 
-    if (not riderChar.PlotAnimation(FBCharacterPlotWhere.kFBCharacterPlotOnSkeleton, plotoBla)):
+    char.InputCharacter = animChar
+    char.InputType = FBCharacterInputType.kFBCharacterInputCharacter
+    char.ActiveInput = True
+    if (not char.PlotAnimation(FBCharacterPlotWhere.kFBCharacterPlotOnSkeleton, plotoBla)):
         FBMessageBox( "Something went wrong", "Plot animation returned false, cannot continue", "OK", None, None )
         return False
 
-    #del(sys, scene, bipedMap, plotoBla)
-    return riderChar    
+    return char    
 
 
 
@@ -288,12 +363,16 @@ def main():
     app = FBApplication()
     scene = FBSystem().Scene
 
+    # setup load/merge options
+    lOptions = FBFbxOptions(True) # true = load options
+    lOptions.CustomImportNamespace = "merged"
+
     # asking for the character, already characterized
     newCharPopup = FBFilePopup();
     newCharPopup.Caption = "Select an already Characterized character"
     newCharPopup.Filter = '*.fbx'
     newCharPopup.Style = FBFilePopupStyle.kFBFilePopupOpen
-    newCharPopup.Path = r"N:\SBK2011\SrcTBConv_GEM\GFX\Characters\rider" #FBSystem().ApplicationPath
+    newCharPopup.Path = FBSystem().ApplicationPath
     if newCharPopup.Execute():
         filename = newCharPopup.FullFilename
     else:
@@ -301,6 +380,8 @@ def main():
         return False
         
     # asking for the animations folder
+    # this part should be changed to load other formats
+    # in theory it should work with any skeleton that can be characterized.
     oldAnimsPopup = FBFolderPopup()
     oldAnimsPopup.Caption = "Animations in fbx to retarget"
     oldAnimsPopup.Filter = '*.fbx'    
@@ -321,40 +402,63 @@ def main():
         FBMessageBox( "Animations selection canceled", "Cannot continue without animations", "OK", None, None )
         return False
 
-    strRootToSearch = "Bip01" #ask this to the user
+    # get root name from the skeleton on the animations folder
+    nomenclature = FBMessageBox( "Animations nomenclature", "The skeleton on the animations folder follow which nomenclature?", "Motionbuilder" , "3dsMax Biped", "Cancel" )
+    if nomenclature == 1:
+        userRoot = FBMessageBoxGetUserValue( "Hips/Pelvis", "Please type exact name of hips node on the animations:", "Hips", FBPopupInputType.kFBPopupString, "Ok" )
+        boneMap = mobuMap
+        bipedPrefixNamingScheme = False
+        prefix = FBMessageBoxGetUserValue( "Prefix to nomenclature", "Please input the prefix used on the skeleton. Leave empty if none.", "", FBPopupInputType.kFBPopupString, "Ok" )
+    elif nomenclature == 2:
+        userRoot = FBMessageBoxGetUserValue( "Hips/Pelvis", "Please type exact name of hips/pelvis node on the animations:", "Bip01", FBPopupInputType.kFBPopupString, "Ok" )
+        boneMap = bipedMap
+        bipedPrefixNamingScheme = True
+        prefix = ["",""] # so we can use prefix variable for both cases
+    else:
+        FBMessageBox( "Root selection canceled", "Cannot continue without root node", "OK", None, None )
+        return False
 
     # iterate through animation list
     for animName in fbxList:
-
-        app.FileOpen(filename) # resets scene, no need to app.FileNew()
+        
+        app.FileNew()
+        scene.Evaluate()
+        app.FileOpen(filename)
         newChar = app.CurrentCharacter
+        if not newChar:
+            FBMessageBox( "Not characterized", "No characterized character on the character scene.", "OK", None, None )
+            return False
 
-        app.FileMerge(oldAnimsPopup.Path + "\\" + animName)
+        app.FileMerge(oldAnimsPopup.Path + "\\" + animName, False, lOptions)
 
-        oldAnimRoot = FBFindModelByName(strRootToSearch)
-        
-        # characterize imported animation with modified 3dsmaxbipedtemplate.py
-        oldAnimChar = CharacterizeBiped(strRootToSearch, bipedPrefixNamingScheme, bipedMap, oldAnimRoot)
-        
+        # if there's no character in the merged animation scene we need to characterize it
+        if len(scene.Characters) == 1:
+	    # find root model to pass to CharacterizeBiped()
+            oldAnimRoot = FBFindModelByName("merged:" + prefix[1] + userRoot[1])
+            if not oldAnimRoot:
+                FBMessageBox( "Could not find hips object", "Check opened scene. Root node name must be given without namespace.", "OK", None, None )
+                return False
+            # characterize imported animation with modified 3dsmaxbipedtemplate.py
+            oldAnimChar = CharacterizeBiped(userRoot[1], bipedPrefixNamingScheme, prefix[1], boneMap, oldAnimRoot)
+            
+        else:
+            oldAnimChar = scene.Characters[1]
+
         # plot
         charToSave = plotAnim(newChar, oldAnimChar)
+
+        # setup save options (for some reason, they were not working outside this loop...)
+        sOptions = FBFbxOptions(False) # false = save options
+        sOptions.SaveCharacter = True
+        sOptions.SaveControlSet = False
+        sOptions.SaveCharacterExtension = False
+        sOptions.ShowFileDialog = False
+        sOptions.ShowOptionsDialog = False
         
         # Saves out the character and rig animation
-        # SaveCharacterRigAndAnimation (str pFileName, FBCharacter pCharacter, bool pSaveCharacter, bool pSaveRig, bool pSaveExtensions)
-        lOptions = FBFbxOptions(False)## save options
-        lOptions.SaveCharacter = True
-        lOptions.SaveControlSet = False
-        lOptions.SaveCharacterExtension = False
-        lOptions.ShowFileDialog = False
-        lOptions.ShowOptionsDialog = False
-        app.SaveCharacterRigAndAnimation(newCharPopup.Path + "\\" + animName, charToSave, lOptions)
-        print newCharPopup.Path + "\\" + animName
-        # FBApplication().FileSave(popupoChar.Path + fname, lOptions)
-        # Closing the current file, not really necessarily needed since the FBApplication::FileOpne replaces the current scene
-        # FBApplication().FileNew()
-    
-        
-        
-        
-    
+        app.SaveCharacterRigAndAnimation(newCharPopup.Path + "\\" + animName, charToSave, sOptions)
+        print "File saved: " + newCharPopup.Path + "\\" + animName
+
+
 main()
+del(bipedPrefixNamingScheme, bipedMap, mobuMap)
