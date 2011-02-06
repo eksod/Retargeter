@@ -25,7 +25,8 @@ import os
 import re
 from pyfbsdk import *
 
-# animations, if not characterized, MUST HAVE TPOSE on first frame
+# Animations, if not characterized, MUST HAVE TPOSE on first frame.
+# As with any retargeting procedure on Motionbuilder, all bones must be above 0 y.
 
 
 
@@ -158,7 +159,7 @@ bipedMap = {'Reference' : 'Fbx_Root',
              'RightForeArmRoll' : 'R ForeTwist' }
              
 # This is the Motionbuilder mapping to use the same function. Edit this list or create your own.
-mobuMap = {'Reference' : 'Fbx_Root',
+mobuMap = {'Reference' : 'reference',
             'Hips':'Hips',
              'LeftUpLeg' : 'LeftUpLeg',
              'LeftLeg' : 'LeftLeg',
@@ -332,7 +333,6 @@ def plotAnim(char, animChar):
     Receives two characters, sets the input of the first character to the second
     and plot. Return ploted character.
     """
-    print animChar.LongName
     if char.GetCharacterize:
         switchOn = char.SetCharacterizeOn(True)
 
@@ -363,45 +363,54 @@ def main():
     app = FBApplication()
     scene = FBSystem().Scene
 
-    # setup load/merge options
-    lOptions = FBFbxOptions(True) # true = load options
-    lOptions.CustomImportNamespace = "merged"
+    fileFormatMBox = FBMessageBox( "What format to load", "In which file format are the animations?", ".fbx" , ".bvh", "Cancel" )
+    if fileFormatMBox == 1:
+        fileFormat = ".fbx"
+    elif fileFormatMBox == 2:
+        fileFormat = ".bvh"
+    else:
+        FBMessageBox( "File format selection canceled", "Cannot continue without a specified format.", "OK", None, None )
+        return False
 
     # asking for the character, already characterized
     newCharPopup = FBFilePopup();
     newCharPopup.Caption = "Select an already Characterized character"
-    newCharPopup.Filter = '*.fbx'
+    newCharPopup.Filter = "*.fbx"
     newCharPopup.Style = FBFilePopupStyle.kFBFilePopupOpen
     newCharPopup.Path = FBSystem().ApplicationPath
     if newCharPopup.Execute():
         filename = newCharPopup.FullFilename
     else:
-        FBMessageBox( "Selection canceled", "Character selection canceled", "OK", None, None )
+        FBMessageBox( "Selection canceled", "Character selection canceled.", "OK", None, None )
         return False
         
     # asking for the animations folder
     # this part should be changed to load other formats
     # in theory it should work with any skeleton that can be characterized.
     oldAnimsPopup = FBFolderPopup()
-    oldAnimsPopup.Caption = "Animations in fbx to retarget"
-    oldAnimsPopup.Filter = '*.fbx'    
+    oldAnimsPopup.Caption = "Animations to retarget"
+    oldAnimsPopup.Filter = "*" + fileFormat
     oldAnimsPopup.Path = newCharPopup.Path # easier to navigate
-    fbxList = []
+
+    fileList = []                
     if oldAnimsPopup.Execute():
         # Getting the names of the files in your previously selected folder
         # Using os to get the file names from the specified folder (above) and storing names of files in a list
-        fileList = os.listdir(oldAnimsPopup.Path)
-        # Setting the regular expression to only look for .fbx extenstion
+        allList = os.listdir(oldAnimsPopup.Path)
+        # Setting the regular expression to only look for .fbx or .bvh extenstion
         fbxRE = re.compile('^\w+.fbx$', re.I)
+        bvhRE = re.compile('^\w+.bvh$', re.I)
         # Removing any files that do not have an .fbx extenstion
-        for fname in fileList:
+        for fname in allList:
             mo = fbxRE.search(fname)
-            if mo:
-                fbxList.append(fname)
+            mi = bvhRE.search(fname)
+            if mo or mi:
+                fileList.append(fname)
     else:
-        FBMessageBox( "Animations selection canceled", "Cannot continue without animations", "OK", None, None )
+        FBMessageBox( "Animations selection canceled", "Cannot continue without animations.", "OK", None, None )
         return False
 
+   
     # get root name from the skeleton on the animations folder
     nomenclature = FBMessageBox( "Animations nomenclature", "The skeleton on the animations folder follow which nomenclature?", "Motionbuilder" , "3dsMax Biped", "Cancel" )
     if nomenclature == 1:
@@ -415,11 +424,11 @@ def main():
         bipedPrefixNamingScheme = True
         prefix = ["",""] # so we can use prefix variable for both cases
     else:
-        FBMessageBox( "Root selection canceled", "Cannot continue without root node", "OK", None, None )
+        FBMessageBox( "Nomenclature selection canceled", "Bones must follow either Motionbuilder or 3dsMax Biped nomenclature. You can edit or add your own inside the script (line 160).", "OK", None, None )
         return False
 
     # iterate through animation list
-    for animName in fbxList:
+    for animName in fileList:
         
         app.FileNew()
         scene.Evaluate()
@@ -429,19 +438,37 @@ def main():
             FBMessageBox( "Not characterized", "No characterized character on the character scene.", "OK", None, None )
             return False
 
-        app.FileMerge(oldAnimsPopup.Path + "\\" + animName, False, lOptions)
+        # FileMerge() can load only native .fbx, and it loads characters if they are present, of course
+        # FileImport() on the other hand just imports the file into the scene
+        if fileFormat == ".fbx":
+            # setup load/merge options
+            lOptions = FBFbxOptions(True) # true = load options
+            lOptions.CustomImportNamespace = "merged"
+            app.FileMerge(oldAnimsPopup.Path + "\\" + animName, False, lOptions)
+        else:
+            app.FileImport(oldAnimsPopup.Path + "\\" + animName, False) # False means it will create objects regardless
+
 
         # if there's no character in the merged animation scene we need to characterize it
         if len(scene.Characters) == 1:
-	    # find root model to pass to CharacterizeBiped()
-            oldAnimRoot = FBFindModelByName("merged:" + prefix[1] + userRoot[1])
+            
+            # find root model to pass to CharacterizeBiped()
+            # if merging FBX, it has custom namespace
+            if fileFormat == ".fbx":
+                oldAnimRoot = FBFindModelByName("merged:" + prefix[1] + userRoot[1])
+            # if importing BVH, it will have it's own BVH: namespace
+            else:
+                oldAnimRoot = FBFindModelByName("BVH:" + prefix[1] + userRoot[1])
+                
             if not oldAnimRoot:
                 FBMessageBox( "Could not find hips object", "Check opened scene. Root node name must be given without namespace.", "OK", None, None )
                 return False
+
             # characterize imported animation with modified 3dsmaxbipedtemplate.py
             oldAnimChar = CharacterizeBiped(userRoot[1], bipedPrefixNamingScheme, prefix[1], boneMap, oldAnimRoot)
             
         else:
+            # merged FBX with an character present in the scene
             oldAnimChar = scene.Characters[1]
 
         # plot
@@ -457,6 +484,8 @@ def main():
         
         # Saves out the character and rig animation
         app.SaveCharacterRigAndAnimation(newCharPopup.Path + "\\" + animName, charToSave, sOptions)
+        if fileFormat != ".fbx":
+            animName += ".fbx" # leaving .bvh and adding .fbx, so File saved: is printed correctly
         print "File saved: " + newCharPopup.Path + "\\" + animName
 
 
