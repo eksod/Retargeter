@@ -25,8 +25,7 @@ import os
 import re
 from pyfbsdk import *
 
-# Animations, if not characterized, MUST HAVE TPOSE on first frame.
-# As with any retargeting procedure on Motionbuilder, all bones must be above 0 y.
+# animations, if not characterized, MUST HAVE TPOSE on first frame
 
 
 
@@ -363,6 +362,19 @@ def main():
     app = FBApplication()
     scene = FBSystem().Scene
 
+    # asking for the character, already characterized
+    newCharPopup = FBFilePopup();
+    newCharPopup.Caption = "Select an already Characterized character"
+    newCharPopup.Filter = "*.fbx"
+    newCharPopup.Style = FBFilePopupStyle.kFBFilePopupOpen
+    # newCharPopup.Path = FBSystem().ApplicationPath
+    if newCharPopup.Execute():
+        filename = newCharPopup.FullFilename
+    else:
+        FBMessageBox( "Selection canceled", "Character selection canceled.", "OK", None, None )
+        return False
+
+    # asking which file format to load. ".fbx" might have a character on the scene.        
     fileFormatMBox = FBMessageBox( "What format to load", "In which file format are the animations?", ".fbx" , ".bvh", "Cancel" )
     if fileFormatMBox == 1:
         fileFormat = ".fbx"
@@ -370,18 +382,6 @@ def main():
         fileFormat = ".bvh"
     else:
         FBMessageBox( "File format selection canceled", "Cannot continue without a specified format.", "OK", None, None )
-        return False
-
-    # asking for the character, already characterized
-    newCharPopup = FBFilePopup();
-    newCharPopup.Caption = "Select an already Characterized character"
-    newCharPopup.Filter = "*.fbx"
-    newCharPopup.Style = FBFilePopupStyle.kFBFilePopupOpen
-    newCharPopup.Path = FBSystem().ApplicationPath
-    if newCharPopup.Execute():
-        filename = newCharPopup.FullFilename
-    else:
-        FBMessageBox( "Selection canceled", "Character selection canceled.", "OK", None, None )
         return False
         
     # asking for the animations folder
